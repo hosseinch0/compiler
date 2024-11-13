@@ -3,12 +3,42 @@ keywords_tokens = []
 symbol_table = dict()
 
 
+def error_execution(file="./errors.txt"):
+    with open(file, "w") as errors:
+        errors.write("FIRST EXECUTION")
+
+
 def read_file(file_to_open="./test.txt"):
     with open(file_to_open, 'r') as file:
 
         for line in file:
             for word in line.split():
                 lexeme_list.append(word)
+
+
+def write_errors(file_to_read="./test.txt", file_to_write="./errors.txt"):
+    with open(file_to_read, 'r') as file:
+        i = 0
+        error_counter = 0
+        data = file.read()
+        try:
+            for i in range(0, len(lexeme_list) - 1):
+                if (keywords_tokens[i] == "ERROR_TK"):
+                    error_counter += 1
+                    data = data.replace(
+                        lexeme_list[i] + " ", "\033$(" + lexeme_list[i] + ")$" + " ")
+                    i += 1
+                else:
+                    i += 1
+        except:
+            pass
+    with open(file_to_write, "w") as write_file:
+        write_file.write(data)
+        if (error_counter > 0):
+            print("ERRORS ARE NOW VISIBLE WITH  ESC$(INPUT)$   FORMAT")
+        else:
+            print("NO LEXICAL ERROR FOUND")
+    print(f"ERROR COUNTS: {error_counter}")
 
 
 def isdigit_19(character):
@@ -639,6 +669,7 @@ def tokenize():
         word = lexeme_list[i]
         token = lexeme_validation(lexeme_list[i])
         if (token == "ID"):
+            keywords_tokens.append(token + "_TK")
             if word in symbol_table.keys():
                 pass
             else:
@@ -650,6 +681,15 @@ def tokenize():
 
 
 # FUNCTION CALLS
-read_file("./final.txt")
-print(tokenize())
-print(symbol_table)
+file_to_write = "./errors.txt"
+
+# ATTENTION
+# RUN IT ONLY THE FIRST TIME USING THIS PROGRAMME
+# error_execution(file_to_write)
+# ATTENTION
+
+file_to_read = "./final.txt"
+read_file(file_to_read)
+tokenize()
+print(keywords_tokens)
+write_errors(file_to_read, file_to_write)
